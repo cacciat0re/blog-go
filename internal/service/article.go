@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cacciat0re/blog-go/internal/dto"
 	"github.com/cacciat0re/blog-go/internal/model"
+	"github.com/cacciat0re/blog-go/internal/model/viewmodel"
 	"github.com/cacciat0re/blog-go/internal/repository"
 )
 
@@ -16,7 +16,7 @@ var ErrArticleNotFound = errors.New("article not found")
 type IArticleService interface {
 	Create(ctx context.Context, article *model.Article) error
 	GetByID(ctx context.Context, id int64) (model.Article, error)
-	GetBySlug(ctx context.Context, slug, lang string) (dto.ArticlePublicResponse, error)
+	GetBySlug(ctx context.Context, slug, lang string) (viewmodel.ArticleViewModel, error)
 }
 
 type ArticleService struct {
@@ -53,7 +53,7 @@ func (s *ArticleService) GetByID(ctx context.Context, id int64) (model.Article, 
 	return article, nil
 }
 
-func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (dto.ArticlePublicResponse, error) {
+func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (viewmodel.ArticleViewModel, error) {
 	lang = strings.ToUpper(strings.TrimSpace(lang))
 	if lang == "" {
 		lang = "EN"
@@ -62,9 +62,9 @@ func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (dto.
 	resonse, err := s.repository.FindBySlug(ctx, slug, lang)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			return dto.ArticlePublicResponse{}, ErrArticleNotFound
+			return viewmodel.ArticleViewModel{}, ErrArticleNotFound
 		}
-		return dto.ArticlePublicResponse{}, fmt.Errorf("find published article %q: %w", slug, err)
+		return viewmodel.ArticleViewModel{}, fmt.Errorf("find published article %q: %w", slug, err)
 	}
 
 	return resonse, nil

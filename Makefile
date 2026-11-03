@@ -24,9 +24,7 @@ clean:
 	rm -rf bin
 
 migrate-up:
-	test -f .env || { echo "missing .env: expected DSN=postgres://..." >&2; exit 1; }
-	set -a; . ./.env; set +a; migrate -path migrations -database "$$DSN" up
+	migrate -path migrations -database "postgres://postgres:$$DB_PASSWORD@localhost:5432/blog_go_db?sslmode=disable" up
 
 migrate-down:
-	test -f .env || { echo "missing .env: expected DSN=postgres://..." >&2; exit 1; }
-	set -a; . ./.env; set +a; migrate -path migrations -database "$$DSN" down 1
+	migrate -path migrations -database "postgres://postgres:$$DB_PASSWORD@localhost:5432/blog_go_db?sslmode=disable" down 1

@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
-
-	"github.com/cacciat0re/blog-go/internal/dto"
 	"github.com/cacciat0re/blog-go/internal/model"
+	"github.com/cacciat0re/blog-go/internal/model/viewmodel"
+	"gorm.io/gorm"
 )
 
 var ErrNotFound = errors.New("record not found")
@@ -16,7 +14,7 @@ var ErrNotFound = errors.New("record not found")
 type IArticleRepository interface {
 	Create(ctx context.Context, article *model.Article) error
 	FindByID(ctx context.Context, id int64) (model.Article, error)
-	FindBySlug(ctx context.Context, slug, lang string) (dto.ArticlePublicResponse, error)
+	FindBySlug(ctx context.Context, slug, lang string) (viewmodel.ArticleViewModel, error)
 }
 
 type ArticleRepository struct {
@@ -45,29 +43,25 @@ func (r *ArticleRepository) FindByID(ctx context.Context, id int64) (model.Artic
 	return article, err
 }
 
-func (r *ArticleRepository) FindBySlug(ctx context.Context, slug, lang string) (dto.ArticlePublicResponse, error) {
-	var response dto.ArticlePublicResponse
+func (r *ArticleRepository) FindBySlug(ctx context.Context, slug, lang string) (viewmodel.ArticleViewModel, error) {
+	var response viewmodel.ArticleViewModel
 	result := r.db.WithContext(ctx).
 		Table("articles").
 		Select(`articles.id,
-			articles.slug,
-			at.language,
 			at.title,
 			at.summary,
+			at.language AS lang,
 			at.html_content AS content,
-			articles.updated_at,
-			at.is_ai_translate AS is_ai_translated`).
+			at.is_ai_translate AS is_ai_translated,
+			articles.updated_at`).
 		Joins("JOIN article_translations AS at ON at.article_id = articles.id").
-		Where("articles.slug = ? AND articles.status = ?", slug, model.ArticleStatusPublished).
-		Where("at.language IN (?, ?)", lang, "EN").
-		Order(clause.Expr{SQL: "CASE WHEN at.language = ? THEN 0 ELSE 1 END", Vars: []interface{}{lang}}).
-		Limit(1).
+		Where("AND articles.status = ? AND articles.slug = ? AND articles.lang = ?", model.ArticleStatusPublished, slug, lang).
 		Scan(&response)
 	if result.Error != nil {
-		return dto.ArticlePublicResponse{}, result.Error
+		return viewmodel.ArticleViewModel{}, result.Error
 	}
 	if result.RowsAffected == 0 {
-		return dto.ArticlePublicResponse{}, ErrNotFound
+		return viewmodel.ArticleViewModel{}, ErrNotFound
 	}
 	return response, nil
 }

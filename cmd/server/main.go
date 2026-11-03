@@ -46,7 +46,9 @@ func main() {
 	articleService := service.NewArticleService(articleRepository)
 	articleHandler := handler.NewArticleHandler(articleService)
 
-	r := router.New(router.Handlers{Article: articleHandler}, cfg.CORS)
+	r := router.New(router.Handlers{
+		Article: articleHandler,
+	}, cfg.CORS)
 
 	log.Printf("Server is running on port %d...", cfg.Server.Port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.Server.Port), r); err != nil {

@@ -32,6 +32,6 @@ Accept: application/json
 GET {{baseUrl}}/api/admin/articles/1
 Accept: application/json
 
-### Get by slug (public)
-GET {{baseUrl}}/api/articles/hello-world?lang=zh
+### GET article
+GET {{baseUrl}}/articles/hello-world?lang=zh
 Accept: application/json
