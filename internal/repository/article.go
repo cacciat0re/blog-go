@@ -1,13 +1,14 @@
 package repository
 
 import (
-	"backend/dto"
-	"backend/model"
 	"context"
 	"errors"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+
+	"github.com/cacciat0re/blog-go/internal/dto"
+	"github.com/cacciat0re/blog-go/internal/model"
 )
 
 var ErrNotFound = errors.New("record not found")

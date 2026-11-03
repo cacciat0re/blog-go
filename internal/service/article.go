@@ -1,13 +1,14 @@
 package service
 
 import (
-	"backend/dto"
-	"backend/model"
-	"backend/repository"
 	"context"
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/cacciat0re/blog-go/internal/dto"
+	"github.com/cacciat0re/blog-go/internal/model"
+	"github.com/cacciat0re/blog-go/internal/repository"
 )
 
 var ErrArticleNotFound = errors.New("article not found")

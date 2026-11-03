@@ -1,11 +1,6 @@
 package main
 
 import (
-	"backend/config"
-	"backend/handler"
-	"backend/repository"
-	"backend/router"
-	"backend/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,6 +8,12 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/cacciat0re/blog-go/internal/config"
+	"github.com/cacciat0re/blog-go/internal/handler"
+	"github.com/cacciat0re/blog-go/internal/repository"
+	"github.com/cacciat0re/blog-go/internal/router"
+	"github.com/cacciat0re/blog-go/internal/service"
 )
 
 func main() {

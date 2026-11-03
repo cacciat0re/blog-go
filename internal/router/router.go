@@ -1,13 +1,14 @@
 package router
 
 import (
-	"backend/config"
-	"backend/handler"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+
+	"github.com/cacciat0re/blog-go/internal/config"
+	"github.com/cacciat0re/blog-go/internal/handler"
 )
 
 type Handlers struct {

@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"backend/model"
-	"backend/service"
 	"encoding/json"
 	"errors"
 	"log"
@@ -10,6 +8,9 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/cacciat0re/blog-go/internal/model"
+	"github.com/cacciat0re/blog-go/internal/service"
 )
 
 type ArticleHandler struct {

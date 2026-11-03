@@ -1,1 +1,13 @@
 config.yml
+
+.env
+
+/bin/
+
+*.test
+coverage.out
+coverage.html
+
+.idea/
+
+.DS_Store
