@@ -1,0 +1,32 @@
+{{- define "content" -}}
+<section class="shell">
+
+  <div class="page-head">
+    <h1 class="page-title">{{t "archive.title"}}</h1>
+    <p class="page-note">{{t "archive.intro"}}</p>
+  </div>
+
+  {{- if .Empty }}
+  {{- template "empty" "archive.empty" }}
+  {{- else }}
+  {{- /* A two-level index: the parent category on the measure, its children
+         hung beneath it. The nesting is structural, so the markup expresses
+         it rather than flattening it. */ -}}
+  <div class="index">
+    {{- range .Groups }}
+    <section class="index-group">
+      <h2 class="index-title"><a href="{{.Href}}">{{.Name}}</a></h2>
+      {{- if .Children }}
+      <ul class="index-children">
+        {{- range .Children }}
+        <li><a href="{{.Href}}">{{.Label}}</a></li>
+        {{- end }}
+      </ul>
+      {{- end }}
+    </section>
+    {{- end }}
+  </div>
+  {{- end }}
+
+</section>
+{{- end -}}

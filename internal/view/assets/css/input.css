@@ -1,0 +1,647 @@
+@import "tailwindcss" source(none);
+
+/* Tailwind scans the templates for the class names they use. The path is
+   relative to this file: assets/css/ → internal/view/templates. */
+@source "../../templates";
+
+/*
+  Swiss design tokens.
+
+  One ink on one paper, one signal colour, one grotesk family. This is the whole
+  palette on purpose: the International Typographic Style worked with a single
+  accent and no decoration, and the hierarchy comes from size, weight and
+  placement rather than from colour.
+*/
+@theme {
+  --font-sans: "Helvetica Neue", Helvetica, "Nimbus Sans", "Liberation Sans", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --color-paper: #ffffff;
+  --color-ink: #000000;
+  --color-ink-muted: #525252;
+  --color-ink-faint: #8a8a8a;
+  --color-rule: #e4e4e4;
+  --color-signal: #0047ff;
+
+  /* Named steps of the type scale. 1.25 ratio, line heights on an 8px rhythm. */
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.4;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.7;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-row: 1.3125rem;
+  --text-row--line-height: 1.2;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.2;
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 1.05;
+  --text-display: 7.5rem;
+  --text-display--line-height: 0.86;
+  --text-display--letter-spacing: -0.045em;
+}
+
+/*
+  Dark mode follows the operating system. Only the tokens flip; every rule below
+  reads them, so there is no second set of styles and no script.
+*/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #000000;
+    --color-ink: #ffffff;
+    --color-ink-muted: #b4b4b4;
+    --color-ink-faint: #6e6e6e;
+    --color-rule: #232323;
+    --color-signal: #6b8cff;
+  }
+}
+
+@layer base {
+  html {
+    @apply bg-paper text-ink font-sans antialiased;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply m-0 flex min-h-screen flex-col text-body tabular-nums;
+  }
+
+  main {
+    @apply flex-1 py-16 md:py-24;
+  }
+
+  ::selection {
+    @apply bg-signal text-paper;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-signal outline-offset-2;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply m-0 font-bold tracking-[-0.02em];
+  }
+
+  p {
+    @apply m-0;
+  }
+
+  time {
+    @apply tabular-nums;
+  }
+}
+
+@layer components {
+  /*
+    The grid. Twelve columns and one container width; the asymmetry is
+    deliberate — the measure takes columns 1–8, marginal notes sit at 10–12.
+    Laid out per breakpoint from the same markup: one document, no mobile
+    template.
+  */
+  .shell {
+    @apply mx-auto w-full max-w-6xl px-6 md:px-12;
+  }
+
+  .skip {
+    @apply absolute left-[-9999px] top-0 z-50 bg-ink px-4 py-3 text-meta text-paper focus:left-6 focus:top-6;
+  }
+
+  /* Header: a hairline rule, wordmark left, sections right, sticky. */
+  .site-header {
+    @apply sticky top-0 z-40 border-b border-rule bg-paper;
+  }
+
+  .header-grid {
+    @apply grid grid-cols-4 items-baseline gap-6 py-5 md:grid-cols-12;
+  }
+
+  .wordmark {
+    @apply col-span-2 flex items-center gap-2 text-[0.9375rem] font-bold tracking-[-0.02em] md:col-span-4;
+  }
+
+  .wordmark-mark {
+    @apply h-4 w-4 shrink-0 fill-ink;
+  }
+
+  .site-nav {
+    @apply hidden md:col-span-6 md:col-start-5 md:flex md:justify-end md:gap-5;
+  }
+
+  .section-link {
+    @apply border-b border-transparent pb-0.5 text-meta font-medium text-ink-muted hover:text-ink;
+  }
+
+  .section-link.is-active {
+    @apply border-signal text-ink;
+  }
+
+  .lang-link {
+    @apply col-start-4 justify-self-end text-meta font-medium text-ink-muted hover:text-signal md:col-span-2 md:col-start-11 md:text-right;
+  }
+
+  /* Mobile menu: a native disclosure, so it needs no script. */
+  .site-nav-mobile {
+    @apply border-t border-rule md:hidden;
+  }
+
+  .site-nav-mobile summary {
+    @apply mx-auto w-full max-w-6xl cursor-pointer list-none px-6 py-3.5 text-meta font-medium text-ink-muted md:px-12;
+  }
+
+  .site-nav-mobile summary::-webkit-details-marker {
+    @apply hidden;
+  }
+
+  .site-nav-mobile nav {
+    @apply flex flex-col pb-4;
+  }
+
+  .site-nav-mobile nav a {
+    @apply border-t border-rule py-3 text-[0.9375rem];
+  }
+
+  .site-nav-mobile nav a.is-active {
+    @apply text-signal;
+  }
+
+  /* Footer: three columns of marginalia, a hairline, then the baseline. */
+  .site-footer {
+    @apply border-t border-rule pt-12;
+  }
+
+  .footer-grid {
+    @apply grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-6;
+  }
+
+  .footer-grid > :nth-child(1) {
+    @apply md:col-span-6;
+  }
+
+  .footer-grid > :nth-child(2) {
+    @apply md:col-span-3 md:col-start-7;
+  }
+
+  .footer-grid > :nth-child(3) {
+    @apply md:col-span-3 md:col-start-10;
+  }
+
+  .footer-heading {
+    @apply mb-4 text-meta font-medium text-ink-faint;
+  }
+
+  .footer-text {
+    @apply max-w-[40ch] text-[0.9375rem] text-ink-muted;
+  }
+
+  .footer-list {
+    @apply m-0 flex list-none flex-col gap-2 p-0 text-[0.9375rem] text-ink-muted;
+  }
+
+  .footer-list a {
+    @apply hover:text-signal;
+  }
+
+  .footer-baseline {
+    @apply mt-12 flex flex-wrap justify-between gap-4 border-t border-rule py-6 text-xs text-ink-faint;
+  }
+
+  /* Masthead: the one place a page raises its voice. */
+  .masthead {
+    @apply grid grid-cols-1 gap-4 border-b border-rule pb-8 md:grid-cols-12 md:items-end;
+  }
+
+  /* The counter ruler: value and label separated by a hairline, running the
+     width of the measure like a technical scale. */
+  .stats {
+    @apply grid grid-cols-2 gap-x-6 border-b border-rule py-4 font-mono sm:grid-cols-4;
+  }
+
+  .stat {
+    @apply flex items-baseline gap-2;
+  }
+
+  .stat-value {
+    @apply text-row font-bold tabular-nums;
+  }
+
+  .stat-label {
+    @apply text-meta text-ink-faint;
+  }
+
+  .masthead-title {
+    @apply text-[clamp(3rem,12vw,7.5rem)] leading-[0.86] font-bold tracking-[-0.045em] md:col-span-8;
+  }
+
+  .masthead-note {
+    @apply self-end text-[0.9375rem] text-ink-muted md:col-span-3 md:col-start-10;
+  }
+
+  .intro {
+    @apply grid grid-cols-1 gap-8 border-b border-rule py-10 md:grid-cols-12;
+  }
+
+  .lead {
+    @apply max-w-[46ch] text-lead md:col-span-6;
+  }
+
+  .intro-actions {
+    @apply flex flex-wrap gap-3 md:col-span-5 md:col-start-8 md:justify-self-end;
+  }
+
+  .action {
+    @apply inline-block border border-ink bg-ink px-5 py-2.5 text-meta font-medium text-paper hover:border-signal hover:bg-signal;
+  }
+
+  .action-quiet {
+    @apply bg-transparent text-ink hover:border-ink hover:bg-ink hover:text-paper;
+  }
+
+  /* Section head: a rule with a title at one end and a link at the other. */
+  .section-head {
+    @apply flex items-baseline justify-between gap-4 border-b border-rule pb-4;
+  }
+
+  .section-title {
+    @apply text-h2;
+  }
+
+  .section-more {
+    @apply text-meta font-medium text-ink-muted hover:text-signal;
+  }
+
+  /*
+    A row is the list unit: date in the left margin, title and summary in the
+    measure, facets pinned right. On narrow screens the margin collapses under
+    the title.
+  */
+  .rows {
+    @apply border-t border-rule;
+  }
+
+  .row {
+    @apply grid grid-cols-1 gap-x-6 gap-y-2 border-b border-rule py-6 md:grid-cols-12 md:items-baseline;
+  }
+
+  .row-meta {
+    @apply flex items-baseline gap-3 font-mono text-meta text-ink-faint md:col-span-2;
+  }
+
+  .row-index {
+    @apply text-ink-faint;
+  }
+
+  .row-body {
+    @apply md:col-span-6 md:col-start-3;
+  }
+
+  .row-facets {
+    @apply flex flex-wrap gap-3 text-xs text-ink-faint md:col-span-3 md:col-start-10 md:justify-self-end;
+  }
+
+  .row-title {
+    @apply text-row tracking-[-0.015em];
+  }
+
+  .row-title a {
+    @apply hover:text-signal;
+  }
+
+  .row-summary {
+    @apply mt-1.5 max-w-[62ch] text-[0.9375rem] text-ink-muted;
+  }
+
+  .row-note {
+    @apply mt-1.5 text-xs text-signal;
+  }
+
+  .facet {
+    @apply text-ink-faint hover:text-signal;
+  }
+
+  .facet.is-link {
+    @apply border border-rule px-2 py-0.5;
+  }
+
+  /* Interior page head. */
+  .page-head {
+    @apply mb-8 flex flex-wrap items-baseline justify-between gap-4 border-b border-rule pb-6;
+  }
+
+  .page-title {
+    @apply text-[clamp(2rem,6vw,2.5rem)] leading-[1.05];
+  }
+
+  .page-count,
+  .page-note {
+    @apply text-meta text-ink-faint;
+  }
+
+  .page-note {
+    @apply max-w-[42ch];
+  }
+
+  /* Filter form: label above, input and button on one line. */
+  .filters {
+    @apply mb-6 flex flex-wrap items-end gap-3;
+  }
+
+  .field {
+    @apply flex max-w-[32rem] flex-[1_1_18rem] flex-col gap-1.5;
+  }
+
+  .field-label {
+    @apply text-xs text-ink-faint;
+  }
+
+  .field-input {
+    @apply w-full border border-ink-faint bg-paper px-3 py-2.5 text-[0.9375rem] text-ink placeholder:text-ink-faint focus:border-signal focus:outline-offset-0;
+    font: inherit;
+  }
+
+  .chips {
+    @apply flex flex-wrap gap-2 pb-8;
+  }
+
+  .chip {
+    @apply border border-rule px-3 py-1 text-meta text-ink-muted hover:border-ink hover:text-ink;
+  }
+
+  .chip.is-active {
+    @apply border-signal text-signal;
+  }
+
+  /* Month heading: a marginal label above the rows it introduces. */
+  .group {
+    @apply mb-12;
+  }
+
+  .group-title {
+    @apply pb-2 text-meta font-medium text-ink-faint;
+  }
+
+  /* Pagination: hairline above, movement at the ends, window in the middle. */
+  .pagination {
+    @apply mt-8 flex flex-wrap items-baseline gap-4 border-t border-rule pt-6 text-meta;
+  }
+
+  .pagination-move {
+    @apply text-ink-muted hover:text-signal;
+  }
+
+  .pagination-window {
+    @apply mx-auto flex gap-3;
+  }
+
+  .pagination-page {
+    @apply tabular-nums text-ink-muted;
+  }
+
+  .pagination-page.is-active {
+    @apply font-bold text-signal;
+  }
+
+  .pagination-summary {
+    @apply text-ink-faint;
+  }
+
+  /* Article detail. */
+  .back {
+    @apply mb-10 text-meta text-ink-muted;
+  }
+
+  .back a {
+    @apply hover:text-signal;
+  }
+
+  .article-head {
+    @apply mb-10 border-b border-rule pb-8;
+  }
+
+  .article-title {
+    @apply mt-4 max-w-[22ch] text-[clamp(2rem,7vw,2.75rem)] leading-[1.05];
+  }
+
+  .article-summary {
+    @apply mt-4 max-w-[58ch] text-lead text-ink-muted;
+  }
+
+  .article-meta {
+    @apply mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-meta text-ink-faint;
+  }
+
+  .notice {
+    @apply mb-8 border-l-2 border-signal px-4 py-3 text-sm text-ink-muted;
+  }
+
+  .article-tags {
+    @apply mt-12 border-t border-rule pt-6;
+  }
+
+  /* Prose: the article body, rendered elsewhere, so these rules only set type. */
+  .prose {
+    @apply max-w-[68ch] text-body leading-[1.75];
+  }
+
+  .prose > * + * {
+    @apply mt-5;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4 {
+    @apply mt-8 mb-2 leading-[1.2];
+  }
+
+  .prose h1 {
+    @apply text-[1.75rem];
+  }
+
+  .prose h2 {
+    @apply text-h2;
+  }
+
+  .prose h3 {
+    @apply text-[1.25rem];
+  }
+
+  .prose ul,
+  .prose ol {
+    @apply pl-6;
+  }
+
+  .prose ul {
+    @apply list-disc;
+  }
+
+  .prose ol {
+    @apply list-decimal;
+  }
+
+  .prose li + li {
+    @apply mt-2;
+  }
+
+  .prose a {
+    @apply text-signal underline underline-offset-2;
+  }
+
+  .prose blockquote {
+    @apply border-l-2 border-signal pl-4;
+  }
+
+  .prose code {
+    @apply bg-ink/6 px-1 py-0.5 text-[0.875em];
+  }
+
+  .prose pre {
+    @apply overflow-x-auto border border-rule p-4 text-sm leading-[1.6];
+  }
+
+  .prose pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .prose img {
+    @apply h-auto max-w-full;
+  }
+
+  .prose table {
+    @apply w-full border-collapse text-[0.9375rem];
+  }
+
+  .prose th,
+  .prose td {
+    @apply border border-rule p-2 text-left;
+  }
+
+  .prose-about {
+    @apply max-w-[60ch];
+  }
+
+  /* Archive index: parent on the measure, children hung beneath it. */
+  .index {
+    @apply font-mono;
+  }
+
+  .index-group {
+    @apply grid grid-cols-1 gap-x-6 border-b border-rule py-5 md:grid-cols-12;
+  }
+
+  .index-title {
+    @apply col-span-1 text-row font-bold md:col-span-4;
+  }
+
+  .index-title a {
+    @apply hover:text-signal;
+  }
+
+  .index-children {
+    @apply m-0 flex list-none flex-wrap gap-x-6 gap-y-1 p-0 text-meta text-ink-muted md:col-span-8;
+  }
+
+  .index-children a {
+    @apply hover:text-signal;
+  }
+
+  /* Gallery: a plain grid of frames. No radius, no shadow — the hairline is the
+     only ornament. */
+  .gallery {
+    @apply grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .frame {
+    @apply m-0 flex flex-col gap-2;
+  }
+
+  .frame-image {
+    @apply block h-auto w-full border border-rule object-cover;
+  }
+
+  .frame-caption {
+    @apply flex flex-wrap items-baseline gap-3 font-mono text-xs text-ink-faint;
+  }
+
+  .frame-tag {
+    @apply text-ink-faint;
+  }
+
+  /* Empty state and placeholder: informational, never decorative. */
+  .empty {
+    @apply py-12 text-[0.9375rem] text-ink-faint;
+  }
+
+  .placeholder {
+    @apply mt-10 max-w-[48ch] border border-rule p-8;
+  }
+
+  .placeholder-title {
+    @apply mb-3 text-lg;
+  }
+
+  .placeholder-body {
+    @apply text-[0.9375rem] text-ink-muted;
+  }
+
+  .placeholder-api {
+    @apply mt-4 text-meta text-ink-faint;
+  }
+
+  /* Status page: the code as the display element, the explanation beside it. */
+  .status {
+    @apply grid grid-cols-1 gap-6 pt-8 md:grid-cols-12;
+  }
+
+  .status-code {
+    @apply text-[clamp(4rem,18vw,9rem)] leading-[0.8] font-bold tracking-[-0.05em] text-rule md:col-span-4;
+  }
+
+  .status > div {
+    @apply md:col-span-6 md:col-start-5;
+  }
+
+  .status-title {
+    @apply mb-3 text-h2;
+  }
+
+  .status-message {
+    @apply max-w-[44ch] text-[0.9375rem] text-ink-muted;
+  }
+
+  .status-action {
+    @apply mt-6;
+  }
+}
+
+/* Print: the same information, no chrome, no colour. */
+@media print {
+  .site-header,
+  .site-footer,
+  .skip,
+  .pagination,
+  .back,
+  .filters,
+  .chips {
+    @apply hidden;
+  }
+
+  .prose a {
+    @apply text-inherit;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

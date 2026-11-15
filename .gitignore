@@ -3,6 +3,7 @@ config.yml
 .env
 
 /bin/
+.tools/
 
 *.test
 coverage.out
@@ -11,3 +12,4 @@ coverage.html
 .idea/
 
 .DS_Store
+.playwright-mcp/

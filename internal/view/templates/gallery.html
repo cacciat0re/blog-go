@@ -1,0 +1,37 @@
+{{- define "content" -}}
+<section class="shell">
+
+  <div class="page-head">
+    <h1 class="page-title">{{t "gallery.title"}}</h1>
+    <p class="page-note">{{t "gallery.intro"}}</p>
+  </div>
+
+  {{- if .Empty }}
+  {{- template "empty" "gallery.empty" }}
+  {{- else }}
+  {{- /* Every frame keeps its own ratio and fills its cell. The grid is the
+         only decoration; the images carry the page. */ -}}
+  <div class="gallery">
+    {{- range .Pictures }}
+    <figure class="frame">
+      <a href="{{.URL}}" rel="noopener">
+        {{- if .Thumbnail }}
+        <img class="frame-image" src="{{.Thumbnail}}" alt="{{.Alt}}" loading="lazy" width="512" height="512">
+        {{- else }}
+        <img class="frame-image" src="{{.URL}}" alt="{{.Alt}}" loading="lazy">
+        {{- end }}
+      </a>
+      <figcaption class="frame-caption">
+        {{- if .DateISO }}<time datetime="{{.DateISO}}">{{.DateShow}}</time>{{- end }}
+        {{- range .Tags }}
+        <span class="frame-tag">#{{.Label}}</span>
+        {{- end }}
+      </figcaption>
+    </figure>
+    {{- end }}
+  </div>
+  {{- end }}
+
+  {{ template "pagination" .Pagination }}
+</section>
+{{- end -}}

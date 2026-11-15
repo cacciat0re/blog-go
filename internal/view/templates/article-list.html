@@ -1,0 +1,56 @@
+{{- define "content" -}}
+<section class="shell">
+
+  <div class="page-head">
+    <h1 class="page-title">{{t "articles.title"}}</h1>
+    <p class="page-count">{{t "articles.showing" .Shown .Total}}</p>
+  </div>
+
+  {{- /* Filters are a plain GET form plus links: every state has an address a
+         crawler can follow, and no script is involved. */}}
+  <form class="filters" method="get" action="{{.BasePath}}">
+    <label class="field">
+      <span class="field-label">{{t "articles.search"}}</span>
+      <input class="field-input" type="search" name="key" value="{{.Query.Key}}" placeholder="{{t "articles.searchPlaceholder"}}">
+    </label>
+    {{- if .Query.Category }}
+    <input type="hidden" name="category" value="{{.Query.Category}}">
+    {{- end }}
+    {{- if .Query.Tag }}
+    <input type="hidden" name="tag" value="{{.Query.Tag}}">
+    {{- end }}
+    <button class="action" type="submit">{{t "articles.search"}}</button>
+    {{- if .HasFilters }}
+    <a class="action action-quiet" href="{{.ClearHref}}">{{t "articles.clear"}}</a>
+    {{- end }}
+  </form>
+
+  {{- if .Filters }}
+  <nav class="chips" aria-label="{{t "articles.filterByCategory"}}">
+    {{- range .Filters }}
+    <a class="chip{{if .Active}} is-active{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>
+    {{- end }}
+  </nav>
+  {{- end }}
+
+</section>
+
+<section class="shell">
+  {{- if .Empty }}
+  {{- template "empty" "articles.empty" }}
+  {{- else }}
+  {{- range .Groups }}
+  <div class="group">
+    <h2 class="group-title">{{.Label}}</h2>
+    <div class="rows">
+      {{- range .Items }}
+      {{- template "article-row" . }}
+      {{- end }}
+    </div>
+  </div>
+  {{- end }}
+  {{- end }}
+
+  {{ template "pagination" .Pagination }}
+</section>
+{{- end -}}

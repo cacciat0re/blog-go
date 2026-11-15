@@ -1,0 +1,68 @@
+{{- /*
+  Site chrome. Both blocks receive the page view model, which embeds
+  SharedViewModel, so .HomeHref / .Sections / .SwitchLang resolve directly.
+*/ -}}
+
+{{- define "header" -}}
+<header class="site-header">
+  <div class="shell header-grid">
+    <a class="wordmark" href="{{.HomeHref}}">
+      {{- /* The Arorms eight-point star, in the ink colour so it follows the
+             theme. The geometry is the organisation's mark, unchanged. */ -}}
+      <svg class="wordmark-mark" viewBox="0 0 256 256" aria-hidden="true" focusable="false">
+        <polygon points="128 20, 143.788 89.884, 204.368 51.632, 166.116 112.212, 236 128, 166.116 143.788, 204.368 204.368, 143.788 166.116, 128 236, 112.212 166.116, 51.632 204.368, 89.884 143.788, 20 128, 89.884 112.212, 51.632 51.632, 112.212 89.884"/>
+      </svg>
+      {{t "site.name"}}
+    </a>
+
+    <nav class="site-nav" aria-label="{{t "nav.menu"}}">
+      {{- range .Sections }}
+      <a class="section-link{{if .Active}} is-active{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{t .LabelKey}}</a>
+      {{- end }}
+    </nav>
+
+    <a class="lang-link" href="{{.SwitchLang.Href}}" hreflang="{{.Meta.Lang.Other.HTMLLang}}" lang="{{.Meta.Lang.Other.HTMLLang}}">{{.Meta.Lang.Other.Label}}</a>
+  </div>
+
+  {{- /* A native disclosure keeps the mobile menu working with no script. */}}
+  <details class="site-nav-mobile">
+    <summary>{{t "nav.menu"}}</summary>
+    <nav class="shell" aria-label="{{t "nav.menu"}}">
+      {{- range .Sections }}
+      <a class="{{if .Active}}is-active{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{t .LabelKey}}</a>
+      {{- end }}
+      <a href="{{.SwitchLang.Href}}" hreflang="{{.Meta.Lang.Other.HTMLLang}}" lang="{{.Meta.Lang.Other.HTMLLang}}">{{.Meta.Lang.Other.Label}}</a>
+    </nav>
+  </details>
+</header>
+{{- end -}}
+
+{{- define "footer" -}}
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div>
+      <h2 class="footer-heading">{{t "footer.about"}}</h2>
+      <p class="footer-text">{{t "site.description"}}</p>
+    </div>
+    <div>
+      <h2 class="footer-heading">{{t "footer.navigation"}}</h2>
+      <ul class="footer-list">
+        {{- range .Sections }}
+        <li><a href="{{.Href}}">{{t .LabelKey}}</a></li>
+        {{- end }}
+      </ul>
+    </div>
+    <div>
+      <h2 class="footer-heading">{{t "footer.connect"}}</h2>
+      <ul class="footer-list">
+        <li><a href="https://github.com/cacciat0re/blog" rel="noopener noreferrer">{{t "footer.github"}}</a></li>
+        <li><a href="https://github.com/cacciat0re/blog-go" rel="noopener noreferrer">{{t "footer.source"}}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="shell footer-baseline">
+    <p>{{t "footer.copyright"}}</p>
+    <p>{{t "site.owner"}}</p>
+  </div>
+</footer>
+{{- end -}}

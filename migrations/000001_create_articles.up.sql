@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS article_translations
     markdown_content TEXT         NOT NULL,
     html_content     TEXT         NOT NULL,
     is_source        BOOLEAN      NOT NULL,
-    is_ai_translate  BOOLEAN      NOT NULL
+    is_translated_by_ai BOOLEAN   NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_article_translations_article_id ON article_translations (article_id);

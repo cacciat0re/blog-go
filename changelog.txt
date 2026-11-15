@@ -1,3 +1,10 @@
+2.0.1
+
+1. add migrations
+2. add home page
+3. add language views
+4. add katex fonts view
+
 2.0.0
 
 1. initialize project

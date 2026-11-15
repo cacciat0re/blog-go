@@ -1,0 +1,71 @@
+{{- /*
+  Reusable fragments. Each block takes the value it needs as its argument, so
+  {{template "article-row" .}} inside a range works on the row, not the page.
+
+  The row is the index entry from the legacy design: position and date in the
+  left margin, title and summary on the measure, facets pinned right. All
+  metadata is set in the monospace family, all of it uppercase-free.
+*/ -}}
+
+{{- define "article-row" -}}
+<article class="row">
+  <p class="row-meta">
+    <span class="row-index">{{.Index}}</span>
+    {{- if .DateISO }}<time datetime="{{.DateISO}}">{{.DateDisplay}}</time>{{- end }}
+  </p>
+  <div class="row-body">
+    <h3 class="row-title"><a href="{{.Href}}">{{.Title}}</a></h3>
+    {{- if .IsTranslatedByAI }}
+    <p class="row-note">{{t "article.aiTranslated"}}</p>
+    {{- end }}
+    {{- if .Summary }}
+    <p class="row-summary">{{.Summary}}</p>
+    {{- end }}
+  </div>
+  <div class="row-facets">
+    {{- if .Category }}
+    <a class="facet is-link" href="{{.Category.Href}}">{{.Category.Label}}</a>
+    {{- end }}
+    {{- range .Tags }}
+    <a class="facet" href="{{.Href}}">#{{.Label}}</a>
+    {{- end }}
+  </div>
+</article>
+{{- end -}}
+
+{{- define "pagination" -}}
+{{- if . }}
+<nav class="pagination" aria-label="{{t "articles.title"}}">
+  {{- if .First }}
+  <a class="pagination-move" href="{{.First.Href}}" rel="first">{{t "pagination.first"}}</a>
+  <a class="pagination-move" href="{{.Prev.Href}}" rel="prev">← {{t "pagination.previous"}}</a>
+  {{- end }}
+  <span class="pagination-window">
+    {{- range .Pages }}
+    <a class="pagination-page{{if .Active}} is-active{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>
+    {{- end }}
+  </span>
+  {{- if .Next }}
+  <a class="pagination-move" href="{{.Next.Href}}" rel="next">{{t "pagination.next"}} →</a>
+  <a class="pagination-move" href="{{.Last.Href}}" rel="last">{{t "pagination.last"}}</a>
+  {{- end }}
+  <span class="pagination-summary">{{t "pagination.summary" .Page .TotalPages}}</span>
+</nav>
+{{- end }}
+{{- end -}}
+
+{{- define "empty" -}}
+<p class="empty">{{t .}}</p>
+{{- end -}}
+
+{{- define "stats" -}}
+{{- /* The counter ruler under the masthead: value and label, separated by a
+       hairline, set in the monospace family like a technical scale. */ -}}
+{{- if . }}
+<div class="stats">
+  {{- range . }}
+  <p class="stat"><span class="stat-value">{{.Value}}</span><span class="stat-label">{{t .Label}}</span></p>
+  {{- end }}
+</div>
+{{- end }}
+{{- end -}}

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cacciat0re/blog-go/internal/model"
-	"github.com/cacciat0re/blog-go/internal/model/viewmodel"
-	"github.com/cacciat0re/blog-go/internal/repository"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/model"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/payload"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/repository"
 )
 
 var ErrArticleNotFound = errors.New("article not found")
@@ -16,7 +16,9 @@ var ErrArticleNotFound = errors.New("article not found")
 type IArticleService interface {
 	Create(ctx context.Context, article *model.Article) error
 	GetByID(ctx context.Context, id int64) (model.Article, error)
-	GetBySlug(ctx context.Context, slug, lang string) (viewmodel.ArticleViewModel, error)
+	GetBySlug(ctx context.Context, slug, lang string) (payload.ArticleResponse, error)
+	GetAllPublished(ctx context.Context, query payload.ArticleListRequest) (payload.PageResponse[payload.ArticleListItemResponse], error)
+	GetPublishedDetail(ctx context.Context, slug, lang string) (payload.ArticleDetailResponse, error)
 }
 
 type ArticleService struct {
@@ -53,19 +55,68 @@ func (s *ArticleService) GetByID(ctx context.Context, id int64) (model.Article, 
 	return article, nil
 }
 
-func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (viewmodel.ArticleViewModel, error) {
-	lang = strings.ToUpper(strings.TrimSpace(lang))
-	if lang == "" {
-		lang = "EN"
-	}
-
-	resonse, err := s.repository.FindBySlug(ctx, slug, lang)
+func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (payload.ArticleResponse, error) {
+	response, err := s.repository.FindBySlug(ctx, slug, lang)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			return viewmodel.ArticleViewModel{}, ErrArticleNotFound
+			return payload.ArticleResponse{}, ErrArticleNotFound
 		}
-		return viewmodel.ArticleViewModel{}, fmt.Errorf("find published article %q: %w", slug, err)
+		return payload.ArticleResponse{}, fmt.Errorf("find published article %q: %w", slug, err)
+	}
+	return response, nil
+}
+
+func (s *ArticleService) GetPublishedDetail(ctx context.Context, slug, lang string) (payload.ArticleDetailResponse, error) {
+	response, err := s.repository.FindPublishedDetail(ctx, slug, lang)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			return payload.ArticleDetailResponse{}, ErrArticleNotFound
+		}
+		return payload.ArticleDetailResponse{}, fmt.Errorf("find published article detail %q: %w", slug, err)
+	}
+	if response.Category != nil && response.Category.Name == "" {
+		response.Category.Name = response.Category.Slug
+	}
+	return response, nil
+}
+
+func (s *ArticleService) GetAllPublished(ctx context.Context, query payload.ArticleListRequest) (payload.PageResponse[payload.ArticleListItemResponse], error) {
+	query = normalizeArticleListRequest(query)
+
+	items, total, err := s.repository.FindPublished(ctx, query)
+	if err != nil {
+		return payload.PageResponse[payload.ArticleListItemResponse]{}, fmt.Errorf("list published articles: %w", err)
+	}
+	for i := range items {
+		if items[i].Category != nil && items[i].Category.Name == "" {
+			items[i].Category.Name = items[i].Category.Slug
+		}
 	}
 
-	return resonse, nil
+	totalPages := int((total + int64(query.Limit) - 1) / int64(query.Limit))
+
+	return payload.PageResponse[payload.ArticleListItemResponse]{
+		Content:    items,
+		Total:      total,
+		Limit:      query.Limit,
+		Offset:     query.Offset,
+		TotalPages: totalPages,
+		HasNext:    int64(query.Offset+len(items)) < total,
+	}, nil
+}
+
+func normalizeArticleListRequest(query payload.ArticleListRequest) payload.ArticleListRequest {
+	query.Key = strings.TrimSpace(query.Key)
+	query.Category = strings.TrimSpace(query.Category)
+	query.Tag = strings.TrimSpace(query.Tag)
+	if query.Limit <= 0 {
+		query.Limit = payload.DefaultArticleListLimit
+	}
+	if query.Limit > payload.MaxArticleListLimit {
+		query.Limit = payload.MaxArticleListLimit
+	}
+	if query.Offset < 0 {
+		query.Offset = 0
+	}
+	return query
 }

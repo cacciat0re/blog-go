@@ -1,0 +1,14 @@
+{{- define "content" -}}
+<section class="shell">
+
+  <div class="status">
+    <p class="status-code">{{.Status}}</p>
+    <div>
+      <h1 class="status-title">{{.Title}}</h1>
+      <p class="status-message">{{.Message}}</p>
+      <p class="status-action"><a class="action" href="{{.HomeURL}}">{{t "error.home"}}</a></p>
+    </div>
+  </div>
+
+</section>
+{{- end -}}

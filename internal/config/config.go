@@ -14,6 +14,9 @@ type Configs struct {
 
 type ServerConfig struct {
 	Port int `yaml:"port" default:"8080"`
+	// Timezone is the zone dates are displayed in, e.g. Asia/Shanghai. Empty
+	// means UTC, so the host's clock never shifts what a reader sees.
+	Timezone string `yaml:"timezone" default:"Asia/Shanghai"`
 }
 
 type DatabaseConfig struct {

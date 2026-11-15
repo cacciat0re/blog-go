@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/cacciat0re/blog-go/internal/view"
 	"github.com/go-chi/chi/v5"
 
-	"github.com/cacciat0re/blog-go/internal/model"
-	"github.com/cacciat0re/blog-go/internal/service"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/model"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/payload"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/service"
 )
 
 type ArticleHandler struct {
@@ -67,17 +67,36 @@ func (h *ArticleHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ArticleHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	lang := chi.URLParam(r, "lang")
-	key := r.URL.Query().Get("key")
-	// All slug string
-	category := r.URL.Query().Get("category")
-	tag := r.URL.Query().Get("tag")
+	var query payload.ArticleListRequest
+	if err := json.NewDecoder(r.Body).Decode(&query); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	if !payload.IsSupportedLanguage(query.Language) {
+		http.Error(w, "unsupported language", http.StatusBadRequest)
+		return
+	}
 
+	result, err := h.service.GetAllPublished(r.Context(), query)
+	if err != nil {
+		log.Printf("failed to list published articles: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(result); err != nil {
+		log.Printf("failed to encode article list: %v", err)
+	}
 }
 
 func (h *ArticleHandler) GetBySlug(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 	lang := chi.URLParam(r, "lang")
+	if !payload.IsSupportedLanguage(lang) {
+		http.Error(w, "unsupported language", http.StatusBadRequest)
+		return
+	}
 
 	article, err := h.service.GetBySlug(r.Context(), slug, lang)
 	if err != nil {
@@ -85,13 +104,13 @@ func (h *ArticleHandler) GetBySlug(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "article not found", http.StatusNotFound)
 			return
 		}
-		log.Printf("failed to get article viewmodel for slug %q: %v", slug, err)
+		log.Printf("failed to get article %q: %v", slug, err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	if err := view.RenderArticle(w, article); err != nil {
-		log.Printf("failed to render article viewmodel for slug %q: %v", slug, err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(article); err != nil {
+		log.Printf("failed to encode article %q: %v", slug, err)
 	}
 }

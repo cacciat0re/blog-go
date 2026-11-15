@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">Black eight-point star logo master</title>
+  <desc id="logo-desc">A radially symmetrical eight-point star with sharp tips, filled black with a white outer edge.</desc>
+
+  <!--
+    Geometry:
+    center: 128, 128
+    outer radius: 108
+    inner radius: 41.256
+    rotation: exact 8-fold symmetry, first tip at 12 o'clock
+    golden relation: (outer radius - inner radius) / outer radius = 0.618
+  -->
+  <defs>
+    <polygon
+      id="star-geometry"
+      points="128 20, 143.788 89.884, 204.368 51.632, 166.116 112.212, 236 128, 166.116 143.788, 204.368 204.368, 143.788 166.116, 128 236, 112.212 166.116, 51.632 204.368, 89.884 143.788, 20 128, 89.884 112.212, 51.632 51.632, 112.212 89.884"
+    />
+  </defs>
+
+  <g id="logo-star">
+    <use
+      href="#star-geometry"
+      fill="#FFFFFF"
+      stroke="#FFFFFF"
+      stroke-width="14"
+      stroke-linejoin="miter"
+      stroke-miterlimit="4"
+    />
+    <use href="#star-geometry" fill="#080808" />
+  </g>
+</svg>
+
+
+

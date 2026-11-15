@@ -1,0 +1,36 @@
+{{- /*
+  The document shell. Every page supplies a "content" block; the partials
+  supply the header and footer. Wording never appears here — it comes from the
+  translation function t, bound to the page's language at parse time.
+*/ -}}
+<!DOCTYPE html>
+<html lang="{{.Meta.HTMLLang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Meta.Title}}</title>
+  <meta name="description" content="{{.Meta.Description}}">
+  {{- if .Meta.SiteName }}
+  <meta property="og:site_name" content="{{.Meta.SiteName}}">
+  {{- end }}
+  <meta property="og:title" content="{{.Meta.Title}}">
+  <meta property="og:description" content="{{.Meta.Description}}">
+  {{- if .Meta.Path }}
+  <meta property="og:url" content="{{.Meta.Path}}">
+  {{- end }}
+  {{- if .Meta.NoIndex }}
+  <meta name="robots" content="noindex, follow">
+  {{- end }}
+  <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
+  <link rel="stylesheet" href="/assets/index.css">
+  <link rel="stylesheet" href="/assets/katex/katex.min.css">
+</head>
+<body>
+  <a class="skip" href="#content">{{t "nav.skipToContent"}}</a>
+  {{ template "header" .Data }}
+  <main id="content">
+    {{ template "content" .Data }}
+  </main>
+  {{ template "footer" .Data }}
+</body>
+</html>

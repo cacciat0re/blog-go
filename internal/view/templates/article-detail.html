@@ -1,0 +1,55 @@
+{{- define "content" -}}
+<section class="shell">
+
+  <nav class="back" aria-label="{{t "article.back"}}">
+    <a href="{{.BackHref}}">← {{t "article.back"}}</a>
+  </nav>
+
+  <article class="article">
+    <header class="article-head">
+      {{- if .Category }}
+      <a class="facet is-link" href="{{.Category.Href}}">{{.Category.Label}}</a>
+      {{- end }}
+      <h1 class="article-title">{{.Title}}</h1>
+      {{- if .Summary }}
+      <p class="article-summary">{{.Summary}}</p>
+      {{- end }}
+      <p class="article-meta">
+        <span>{{t "article.published"}}</span>
+        {{- if .DateISO }}<time datetime="{{.DateISO}}">{{.DateDisplay}}</time>{{- end }}
+        {{- if .UpdatedISO }}
+        <span>{{t "article.updated"}}</span>
+        <time datetime="{{.UpdatedISO}}">{{.UpdatedDisplay}}</time>
+        {{- end }}
+      </p>
+    </header>
+
+    {{- if .IsTranslatedByAI }}
+    <p class="notice">{{t "article.aiTranslated"}}</p>
+    {{- end }}
+
+    {{- /*
+      The body comes from article_translations.html_content, rendered from
+      Markdown by the admin application at save time. It is the only value on the
+      site allowed to pass through html/template without escaping.
+    */ -}}
+    {{- if .Content }}
+    <div class="prose">{{.Content}}</div>
+    {{- else }}
+    <p class="empty">{{t "article.noContent"}}</p>
+    {{- end }}
+
+    {{- if .Tags }}
+    <footer class="article-tags">
+      <h2 class="footer-heading">{{t "article.tags"}}</h2>
+      <ul class="footer-list">
+        {{- range .Tags }}
+        <li><a href="{{.Href}}">#{{.Label}}</a></li>
+        {{- end }}
+      </ul>
+    </footer>
+    {{- end }}
+  </article>
+
+</section>
+{{- end -}}
