@@ -17,9 +17,9 @@ var ErrNotFound = errors.New("record not found")
 type IArticleRepository interface {
 	Create(ctx context.Context, article *model.Article) error
 	FindByID(ctx context.Context, id int64) (model.Article, error)
-	FindBySlug(ctx context.Context, slug, lang string) (payload.ArticleResponse, error)
+	FindBySlug(ctx context.Context, slug string) (payload.ArticleResponse, error)
 	FindPublished(ctx context.Context, query payload.ArticleListRequest) ([]payload.ArticleListItemResponse, int64, error)
-	FindPublishedDetail(ctx context.Context, slug, lang string) (payload.ArticleDetailResponse, error)
+	FindPublishedDetail(ctx context.Context, slug string) (payload.ArticleDetailResponse, error)
 }
 
 type ArticleRepository struct {
@@ -39,7 +39,6 @@ func (r *ArticleRepository) Create(ctx context.Context, article *model.Article) 
 func (r *ArticleRepository) FindByID(ctx context.Context, id int64) (model.Article, error) {
 	var article model.Article
 	err := r.db.WithContext(ctx).
-		Preload("Translations").
 		Where("id = ?", id).
 		First(&article).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -48,20 +47,16 @@ func (r *ArticleRepository) FindByID(ctx context.Context, id int64) (model.Artic
 	return article, err
 }
 
-func (r *ArticleRepository) FindBySlug(ctx context.Context, slug, lang string) (payload.ArticleResponse, error) {
+func (r *ArticleRepository) FindBySlug(ctx context.Context, slug string) (payload.ArticleResponse, error) {
 	var response payload.ArticleResponse
 	result := r.db.WithContext(ctx).
 		Table("articles").
-		Select(`articles.slug,
-			at.language AS language,
-			at.title,
-			at.summary,
-			at.html_content AS content,
-			at.is_translated_by_ai,
-			articles.updated_at`).
-		Joins("JOIN article_translations AS at ON at.article_id = articles.id").
-		Where("articles.status = ? AND articles.slug = ? AND at.language = ?",
-			model.ArticleStatusPublished, slug, lang).
+		Select(`slug,
+			title,
+			summary,
+			html_content AS content,
+			updated_at`).
+		Where("status = ? AND slug = ?", model.ArticleStatusPublished, slug).
 		Scan(&response)
 	if result.Error != nil {
 		return payload.ArticleResponse{}, result.Error
@@ -75,12 +70,10 @@ func (r *ArticleRepository) FindBySlug(ctx context.Context, slug, lang string) (
 type articleDetailRow struct {
 	ID               int64
 	Slug             string
-	Language         string
 	Title            string
 	Summary          string
 	Content          string
 	Status           string
-	IsTranslatedByAI bool
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	CategoryID       *int64
@@ -90,29 +83,24 @@ type articleDetailRow struct {
 }
 
 // FindPublishedDetail loads one published article with the facets the public
-// detail page shows. It shares the list query's join shape so a category name is
-// translated the same way it is on a list row.
-func (r *ArticleRepository) FindPublishedDetail(ctx context.Context, slug, lang string) (payload.ArticleDetailResponse, error) {
+// detail page shows.
+func (r *ArticleRepository) FindPublishedDetail(ctx context.Context, slug string) (payload.ArticleDetailResponse, error) {
 	var row articleDetailRow
 	result := r.db.WithContext(ctx).
 		Table("articles").
 		Select(`articles.id,
 			articles.slug,
 			articles.status,
-			at.language AS language,
-			at.title,
-			at.summary,
-			at.html_content AS content,
-			at.is_translated_by_ai,
+			articles.title,
+			articles.summary,
+			articles.html_content AS content,
 			articles.created_at,
 			articles.updated_at,
 			c.id AS category_id,
 			c.slug AS category_slug,
-			ct.content AS category_name,
+			c.name AS category_name,
 			c.parent_id AS category_parent_id`).
-		Joins("JOIN article_translations AS at ON at.article_id = articles.id AND at.language = ?", lang).
 		Joins("LEFT JOIN categories AS c ON c.id = articles.category_id").
-		Joins("LEFT JOIN category_translations AS ct ON ct.category_id = c.id AND ct.language = ?", lang).
 		Where("articles.status = ? AND articles.slug = ?", model.ArticleStatusPublished, slug).
 		Scan(&row)
 	if result.Error != nil {
@@ -128,17 +116,15 @@ func (r *ArticleRepository) FindPublishedDetail(ctx context.Context, slug, lang 
 	}
 
 	response := payload.ArticleDetailResponse{
-		ID:               row.ID,
-		Slug:             row.Slug,
-		Language:         row.Language,
-		Title:            row.Title,
-		Summary:          row.Summary,
-		Content:          row.Content,
-		Status:           row.Status,
-		IsTranslatedByAI: row.IsTranslatedByAI,
-		CreatedAt:        row.CreatedAt,
-		UpdatedAt:        row.UpdatedAt,
-		Tags:             tagsByArticle[row.ID],
+		ID:        row.ID,
+		Slug:      row.Slug,
+		Title:     row.Title,
+		Summary:   row.Summary,
+		Content:   row.Content,
+		Status:    row.Status,
+		CreatedAt: row.CreatedAt,
+		UpdatedAt: row.UpdatedAt,
+		Tags:      tagsByArticle[row.ID],
 	}
 	if response.Tags == nil {
 		response.Tags = []payload.TagResponse{}
@@ -162,7 +148,6 @@ type articleListRow struct {
 	Title            string
 	Summary          string
 	Status           string
-	IsTranslatedByAI bool
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	CategoryID       *int64
@@ -176,14 +161,12 @@ type articleListRow struct {
 func (r *ArticleRepository) publishedArticlesQuery(ctx context.Context, query payload.ArticleListRequest) *gorm.DB {
 	db := r.db.WithContext(ctx).
 		Model(&model.Article{}).
-		Joins("JOIN article_translations AS at ON at.article_id = articles.id AND at.language = ?", query.Language).
 		Joins("LEFT JOIN categories AS c ON c.id = articles.category_id").
-		Joins("LEFT JOIN category_translations AS ct ON ct.category_id = c.id AND ct.language = ?", query.Language).
 		Where("articles.status = ?", model.ArticleStatusPublished)
 
 	if query.Key != "" {
 		pattern := "%" + escapeLike(query.Key) + "%"
-		db = db.Where(`(at.title ILIKE ? ESCAPE '\' OR at.summary ILIKE ? ESCAPE '\' OR at.markdown_content ILIKE ? ESCAPE '\')`,
+		db = db.Where(`(articles.title ILIKE ? ESCAPE '\' OR articles.summary ILIKE ? ESCAPE '\' OR articles.markdown_content ILIKE ? ESCAPE '\')`,
 			pattern, pattern, pattern)
 	}
 	if query.Category != "" {
@@ -211,15 +194,14 @@ func (r *ArticleRepository) FindPublished(ctx context.Context, query payload.Art
 	err := r.publishedArticlesQuery(ctx, query).
 		Select(`articles.id,
 			articles.slug,
+			articles.title,
+			articles.summary,
 			articles.status,
-			at.title,
-			at.summary,
-			at.is_translated_by_ai,
 			articles.created_at,
 			articles.updated_at,
 			c.id AS category_id,
 			c.slug AS category_slug,
-			ct.content AS category_name,
+			c.name AS category_name,
 			c.parent_id AS category_parent_id`).
 		Order("articles.created_at DESC NULLS LAST").
 		Order("articles.id DESC").
@@ -246,15 +228,14 @@ func (r *ArticleRepository) FindPublished(ctx context.Context, query payload.Art
 
 	for _, row := range rows {
 		item := payload.ArticleListItemResponse{
-			ID:               row.ID,
-			Slug:             row.Slug,
-			Title:            row.Title,
-			Summary:          row.Summary,
-			Status:           row.Status,
-			CreatedAt:        row.CreatedAt,
-			UpdatedAt:        row.UpdatedAt,
-			IsTranslatedByAI: row.IsTranslatedByAI,
-			Tags:             tagsByArticle[row.ID],
+			ID:        row.ID,
+			Slug:      row.Slug,
+			Title:     row.Title,
+			Summary:   row.Summary,
+			Status:    row.Status,
+			CreatedAt: row.CreatedAt,
+			UpdatedAt: row.UpdatedAt,
+			Tags:      tagsByArticle[row.ID],
 		}
 		if item.Tags == nil {
 			item.Tags = []payload.TagResponse{}

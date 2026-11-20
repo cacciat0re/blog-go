@@ -1,50 +1,47 @@
 {{- define "content" -}}
-<section class="shell">
+<section class="mx-auto w-full max-w-6xl px-6 md:px-12">
 
-  <nav class="back" aria-label="{{t "article.back"}}">
-    <a href="{{.BackHref}}">← {{t "article.back"}}</a>
+  <nav class="mb-10 text-meta text-ink-muted print:hidden" aria-label="返回文章列表">
+    <a class="hover:text-signal" href="{{.BackHref}}">← 返回文章列表</a>
   </nav>
 
-  <article class="article">
-    <header class="article-head">
+  <article>
+    <header class="mb-10 border-b border-rule pb-8">
       {{- if .Category }}
-      <a class="facet is-link" href="{{.Category.Href}}">{{.Category.Label}}</a>
+      <a class="border border-rule px-2 py-0.5 text-ink-faint hover:text-signal" href="{{.Category.Href}}">{{.Category.Label}}</a>
       {{- end }}
-      <h1 class="article-title">{{.Title}}</h1>
+      <h1 class="mt-4 max-w-[22ch] text-[clamp(2rem,7vw,2.75rem)] leading-[1.05]">{{.Title}}</h1>
       {{- if .Summary }}
-      <p class="article-summary">{{.Summary}}</p>
+      <p class="mt-4 max-w-[58ch] text-lead text-ink-muted">{{.Summary}}</p>
       {{- end }}
-      <p class="article-meta">
-        <span>{{t "article.published"}}</span>
+      <p class="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-meta text-ink-faint">
+        <span>发布于</span>
         {{- if .DateISO }}<time datetime="{{.DateISO}}">{{.DateDisplay}}</time>{{- end }}
         {{- if .UpdatedISO }}
-        <span>{{t "article.updated"}}</span>
+        <span>更新于</span>
         <time datetime="{{.UpdatedISO}}">{{.UpdatedDisplay}}</time>
         {{- end }}
       </p>
     </header>
 
-    {{- if .IsTranslatedByAI }}
-    <p class="notice">{{t "article.aiTranslated"}}</p>
-    {{- end }}
-
     {{- /*
-      The body comes from article_translations.html_content, rendered from
-      Markdown by the admin application at save time. It is the only value on the
-      site allowed to pass through html/template without escaping.
+      The body comes from articles.html_content, rendered from Markdown by the
+      admin application at save time. It is the only value on the site allowed
+      to pass through html/template without escaping. Its descendant styles live
+      in input.css because the markup comes from the database, not a template.
     */ -}}
     {{- if .Content }}
     <div class="prose">{{.Content}}</div>
     {{- else }}
-    <p class="empty">{{t "article.noContent"}}</p>
+    <p class="py-12 text-[0.9375rem] text-ink-faint">本文暂无内容。</p>
     {{- end }}
 
     {{- if .Tags }}
-    <footer class="article-tags">
-      <h2 class="footer-heading">{{t "article.tags"}}</h2>
-      <ul class="footer-list">
+    <footer class="mt-12 border-t border-rule pt-6">
+      <h2 class="mb-4 text-meta font-medium text-ink-faint">标签</h2>
+      <ul class="m-0 flex list-none flex-col gap-2 p-0 text-[0.9375rem] text-ink-muted">
         {{- range .Tags }}
-        <li><a href="{{.Href}}">#{{.Label}}</a></li>
+        <li><a class="hover:text-signal" href="{{.Href}}">#{{.Label}}</a></li>
         {{- end }}
       </ul>
     </footer>

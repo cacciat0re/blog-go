@@ -1,10 +1,9 @@
 {{- /*
   The document shell. Every page supplies a "content" block; the partials
-  supply the header and footer. Wording never appears here — it comes from the
-  translation function t, bound to the page's language at parse time.
+  supply the header and footer.
 */ -}}
 <!DOCTYPE html>
-<html lang="{{.Meta.HTMLLang}}">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,15 +17,12 @@
   {{- if .Meta.Path }}
   <meta property="og:url" content="{{.Meta.Path}}">
   {{- end }}
-  {{- if .Meta.NoIndex }}
-  <meta name="robots" content="noindex, follow">
-  {{- end }}
   <link rel="icon" type="image/svg+xml" href="/assets/img/logo.svg">
   <link rel="stylesheet" href="/assets/index.css">
   <link rel="stylesheet" href="/assets/katex/katex.min.css">
 </head>
 <body>
-  <a class="skip" href="#content">{{t "nav.skipToContent"}}</a>
+  <a class="absolute left-[-9999px] top-0 z-50 bg-ink px-4 py-3 text-meta text-paper focus:left-6 focus:top-6 print:hidden" href="#content">跳到正文</a>
   {{ template "header" .Data }}
   <main id="content">
     {{ template "content" .Data }}

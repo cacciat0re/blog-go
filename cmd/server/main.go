@@ -12,9 +12,9 @@ import (
 
 	"gitlab.arorms.cn/arorms/applications/blog/internal/config"
 	"gitlab.arorms.cn/arorms/applications/blog/internal/handler"
-	"gitlab.arorms.cn/arorms/applications/blog/internal/i18n"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/handler/api"
 	"gitlab.arorms.cn/arorms/applications/blog/internal/repository"
-	"gitlab.arorms.cn/arorms/applications/blog/internal/router"
+	"gitlab.arorms.cn/arorms/applications/blog/internal/route"
 	"gitlab.arorms.cn/arorms/applications/blog/internal/service"
 	"gitlab.arorms.cn/arorms/applications/blog/internal/view"
 )
@@ -41,16 +41,7 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	//if err := db.AutoMigrate(&model.Article{}); err != nil {
-	//	log.Fatalf("Failed to migrate table: %v", err)
-	//}
-
-	dict, err := i18n.Load()
-	if err != nil {
-		log.Fatalf("Failed to load translations: %v", err)
-	}
-
-	renderer, err := view.New(dict)
+	renderer, err := view.New()
 	if err != nil {
 		log.Fatalf("Failed to parse templates: %v", err)
 	}
@@ -59,30 +50,22 @@ func main() {
 	categoryRepository := repository.NewCategoryRepository(db)
 	tagRepository := repository.NewTagRepository(db)
 	pictureRepository := repository.NewPictureRepository(db)
-	statisticsRepository := repository.NewStatisticsRepository(db)
 
 	articleService := service.NewArticleService(articleRepository)
 	categoryService := service.NewCategoryService(categoryRepository)
 	tagService := service.NewTagService(tagRepository)
 	pictureService := service.NewPictureService(pictureRepository)
-	statisticsService := service.NewStatisticsService(statisticsRepository)
 
-	articleHandler := handler.NewArticleHandler(articleService)
-	pageHandler := handler.NewPageHandler(
-		articleService,
-		categoryService,
-		tagService,
-		pictureService,
-		statisticsService,
-		renderer,
-		dict,
-		timezone(cfg.Server.Timezone),
-	)
+	handler.Init(renderer, timezone(cfg.Server.Timezone))
 
-	r := router.New(router.Handlers{
-		Article:  articleHandler,
-		Page:     pageHandler,
-		Renderer: renderer,
+	r := route.New(route.Handlers{
+		MVC: route.MVC{
+			Home:     handler.NewHomeHandler(articleService),
+			Articles: handler.NewArticlesHandler(articleService, categoryService, tagService),
+			Gallery:  handler.NewGalleryHandler(pictureService),
+			About:    handler.NewAboutHandler(),
+		},
+		API: route.API{Article: api.NewArticleAPIHandler(articleService)},
 	}, cfg.CORS)
 
 	log.Printf("Server is running on: http://localhost:%d", cfg.Server.Port)

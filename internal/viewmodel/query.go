@@ -3,7 +3,6 @@ package viewmodel
 import (
 	"net/url"
 	"strconv"
-	"strings"
 
 	"gitlab.arorms.cn/arorms/applications/blog/internal/payload"
 )
@@ -16,9 +15,8 @@ const (
 )
 
 // ListQuery is the validated query of a list page: everything here is already
-// normalised (trimmed, clamped, language checked).
+// normalised (trimmed and clamped).
 type ListQuery struct {
-	Lang     string // URL code, e.g. "en"
 	Key      string
 	Category string
 	Tag      string
@@ -67,7 +65,6 @@ func (q ListQuery) HomeURL(base string) string { return q.URL(base, 1) }
 // clamped: the offset is derived from it.
 func (q ListQuery) Payload() payload.ArticleListRequest {
 	return payload.ArticleListRequest{
-		Language: strings.ToUpper(q.Lang),
 		Key:      q.Key,
 		Category: q.Category,
 		Tag:      q.Tag,

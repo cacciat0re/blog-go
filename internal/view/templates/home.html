@@ -1,39 +1,36 @@
 {{- define "content" -}}
-<section class="shell">
+<section class="mx-auto w-full max-w-6xl px-6 md:px-12">
 
   {{- /* The masthead is the one place the page raises its voice: a single
          oversized line on the left, the note and counters as marginalia. */}}
-  <div class="masthead">
-    <h1 class="masthead-title">{{t "site.name"}}</h1>
-    <p class="masthead-note">{{t "home.tagline"}}</p>
+  <div class="grid grid-cols-1 gap-4 border-b border-rule pb-8 md:grid-cols-12 md:items-end">
+    <h1 class="text-[clamp(3rem,12vw,7.5rem)] font-bold leading-[0.86] tracking-[-0.045em] md:col-span-8">BLOG.CACC</h1>
+    <p class="self-end text-[0.9375rem] text-ink-muted md:col-span-3 md:col-start-10">关于结构、系统与代码的笔记。</p>
   </div>
 
-  {{ template "stats" .Stats }}
-
-  <div class="intro">
-    <p class="lead">{{t "home.intro"}}</p>
-    <p class="intro-actions">
-      <a class="action" href="{{.ArticlesHref}}">{{t "home.readArticles"}}</a>
-      <a class="action action-quiet" href="{{.ArchiveHref}}">{{t "home.viewArchive"}}</a>
-    </p>
-  </div>
+<!--  <div class="grid grid-cols-1 gap-8 border-b border-rule py-10 md:grid-cols-12">-->
+<!--    <p class="max-w-[46ch] text-lead md:col-span-6">记录软件架构、分布式系统，以及那些只在规模出现后才暴露的工程问题。</p>-->
+<!--    <p class="flex flex-wrap gap-3 md:col-span-5 md:col-start-8 md:justify-self-end">-->
+<!--      <a class="inline-block border border-ink bg-ink px-5 py-2.5 text-meta font-medium text-paper hover:border-signal hover:bg-signal" href="/articles">开始阅读</a>-->
+<!--    </p>-->
+<!--  </div>-->
 
 </section>
 
-<section class="shell">
+<section class="mx-auto mt-12 w-full max-w-6xl px-6 md:px-12">
 
-  <div class="section-head">
-    <h2 class="section-title">{{t "home.latest"}}</h2>
-    <a class="section-more" href="{{.ArticlesHref}}">{{t "home.viewAll"}} →</a>
+  <div class="flex items-baseline justify-between gap-4 border-b border-rule pb-4">
+    <h2 class="text-h2">最新文章</h2>
+    <a class="text-meta font-medium text-ink-muted hover:text-signal" href="/articles">全部文章 →</a>
   </div>
 
-  <div class="rows">
+  <div class="border-t border-rule">
     {{- if .Articles }}
     {{- range .Articles }}
     {{- template "article-row" . }}
     {{- end }}
     {{- else }}
-    {{- template "empty" "articles.empty" }}
+    {{- template "empty" "暂无文章。" }}
     {{- end }}
   </div>
 

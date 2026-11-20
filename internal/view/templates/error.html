@@ -1,12 +1,12 @@
 {{- define "content" -}}
-<section class="shell">
+<section class="mx-auto w-full max-w-6xl px-6 md:px-12">
 
-  <div class="status">
-    <p class="status-code">{{.Status}}</p>
-    <div>
-      <h1 class="status-title">{{.Title}}</h1>
-      <p class="status-message">{{.Message}}</p>
-      <p class="status-action"><a class="action" href="{{.HomeURL}}">{{t "error.home"}}</a></p>
+  <div class="grid grid-cols-1 gap-6 pt-8 md:grid-cols-12">
+    <p class="text-[clamp(4rem,18vw,9rem)] font-bold leading-[0.8] tracking-[-0.05em] text-rule md:col-span-4">{{.Status}}</p>
+    <div class="md:col-span-6 md:col-start-5">
+      <h1 class="mb-3 text-h2">{{.Title}}</h1>
+      <p class="max-w-[44ch] text-[0.9375rem] text-ink-muted">{{.Message}}</p>
+      <p class="mt-6"><a class="inline-block border border-ink bg-ink px-5 py-2.5 text-meta font-medium text-paper hover:border-signal hover:bg-signal" href="{{.HomeURL}}">返回首页</a></p>
     </div>
   </div>
 

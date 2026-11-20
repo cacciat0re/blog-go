@@ -7,7 +7,7 @@ type CategoryResponse struct {
 	ParentID *int64 `json:"parent_id"`
 }
 
-// CategoryTreeNode is a category with its children, for the archive index.
+// CategoryTreeNode is a category with its children.
 type CategoryTreeNode struct {
 	ID       int64              `json:"id"`
 	Name     string             `json:"name"`

@@ -12,11 +12,10 @@ import (
 var ErrCategoryNotFound = errors.New("category not found")
 
 type ICategoryService interface {
-	List(ctx context.Context, lang string) ([]payload.CategoryResponse, error)
-	GetBySlug(ctx context.Context, slug, lang string) (payload.CategoryResponse, error)
-	// Tree returns the categories nested one level by parent, as the archive page
-	// shows them.
-	Tree(ctx context.Context, lang string) ([]payload.CategoryTreeNode, error)
+	List(ctx context.Context) ([]payload.CategoryResponse, error)
+	GetBySlug(ctx context.Context, slug string) (payload.CategoryResponse, error)
+	// Tree returns the categories nested one level by parent.
+	Tree(ctx context.Context) ([]payload.CategoryTreeNode, error)
 }
 
 type CategoryService struct {
@@ -27,8 +26,8 @@ func NewCategoryService(repo repository.ICategoryRepository) ICategoryService {
 	return &CategoryService{repository: repo}
 }
 
-func (s *CategoryService) List(ctx context.Context, lang string) ([]payload.CategoryResponse, error) {
-	items, err := s.repository.FindAll(ctx, lang)
+func (s *CategoryService) List(ctx context.Context) ([]payload.CategoryResponse, error) {
+	items, err := s.repository.FindAll(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list categories: %w", err)
 	}
@@ -40,8 +39,8 @@ func (s *CategoryService) List(ctx context.Context, lang string) ([]payload.Cate
 	return items, nil
 }
 
-func (s *CategoryService) GetBySlug(ctx context.Context, slug, lang string) (payload.CategoryResponse, error) {
-	item, err := s.repository.FindBySlug(ctx, slug, lang)
+func (s *CategoryService) GetBySlug(ctx context.Context, slug string) (payload.CategoryResponse, error) {
+	item, err := s.repository.FindBySlug(ctx, slug)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return payload.CategoryResponse{}, ErrCategoryNotFound
@@ -54,11 +53,10 @@ func (s *CategoryService) GetBySlug(ctx context.Context, slug, lang string) (pay
 	return item, nil
 }
 
-// Tree nests the flat category list one level by parent, which is the shape the
-// archive page prints. Categories whose parent is missing stay at the top level
-// rather than disappearing.
-func (s *CategoryService) Tree(ctx context.Context, lang string) ([]payload.CategoryTreeNode, error) {
-	items, err := s.List(ctx, lang)
+// Tree nests the flat category list one level by parent. Categories whose parent
+// is missing stay at the top level rather than disappearing.
+func (s *CategoryService) Tree(ctx context.Context) ([]payload.CategoryTreeNode, error) {
+	items, err := s.List(ctx)
 	if err != nil {
 		return nil, err
 	}

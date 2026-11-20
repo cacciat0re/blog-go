@@ -1,17 +1,17 @@
 {{- define "content" -}}
-<section class="shell">
+<section class="mx-auto w-full max-w-6xl px-6 md:px-12">
 
-  <div class="page-head">
-    <h1 class="page-title">{{t "articles.title"}}</h1>
-    <p class="page-count">{{t "articles.showing" .Shown .Total}}</p>
+  <div class="mb-8 flex flex-wrap items-baseline justify-between gap-4 border-b border-rule pb-6">
+    <h1 class="text-[clamp(2rem,6vw,2.5rem)] leading-[1.05]">文章</h1>
+    <p class="text-meta text-ink-faint">显示 {{.Shown}} 篇，共 {{.Total}} 篇</p>
   </div>
 
   {{- /* Filters are a plain GET form plus links: every state has an address a
          crawler can follow, and no script is involved. */}}
-  <form class="filters" method="get" action="{{.BasePath}}">
-    <label class="field">
-      <span class="field-label">{{t "articles.search"}}</span>
-      <input class="field-input" type="search" name="key" value="{{.Query.Key}}" placeholder="{{t "articles.searchPlaceholder"}}">
+  <form class="mb-6 flex flex-wrap items-end gap-3 print:hidden" method="get" action="{{.BasePath}}">
+    <label class="flex max-w-[32rem] flex-[1_1_18rem] flex-col gap-1.5">
+      <span class="text-xs text-ink-faint">搜索</span>
+      <input class="w-full border border-ink-faint bg-paper px-3 py-2.5 text-[0.9375rem] text-ink placeholder:text-ink-faint focus:border-signal focus:outline-offset-0" type="search" name="key" value="{{.Query.Key}}" placeholder="标题、摘要或正文">
     </label>
     {{- if .Query.Category }}
     <input type="hidden" name="category" value="{{.Query.Category}}">
@@ -19,30 +19,30 @@
     {{- if .Query.Tag }}
     <input type="hidden" name="tag" value="{{.Query.Tag}}">
     {{- end }}
-    <button class="action" type="submit">{{t "articles.search"}}</button>
+    <button class="inline-block border border-ink bg-ink px-5 py-2.5 text-meta font-medium text-paper hover:border-signal hover:bg-signal" type="submit">搜索</button>
     {{- if .HasFilters }}
-    <a class="action action-quiet" href="{{.ClearHref}}">{{t "articles.clear"}}</a>
+    <a class="inline-block border border-ink bg-transparent px-5 py-2.5 text-meta font-medium text-ink hover:border-ink hover:bg-ink hover:text-paper" href="{{.ClearHref}}">清除筛选</a>
     {{- end }}
   </form>
 
   {{- if .Filters }}
-  <nav class="chips" aria-label="{{t "articles.filterByCategory"}}">
+  <nav class="flex flex-wrap gap-2 pb-8 print:hidden" aria-label="按分类筛选">
     {{- range .Filters }}
-    <a class="chip{{if .Active}} is-active{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>
+    <a class="border border-rule px-3 py-1 text-meta text-ink-muted hover:border-ink hover:text-ink{{if .Active}} border-signal text-signal{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>
     {{- end }}
   </nav>
   {{- end }}
 
 </section>
 
-<section class="shell">
+<section class="mx-auto w-full max-w-6xl px-6 md:px-12">
   {{- if .Empty }}
-  {{- template "empty" "articles.empty" }}
+  {{- template "empty" "这一页没有匹配的文章。" }}
   {{- else }}
   {{- range .Groups }}
-  <div class="group">
-    <h2 class="group-title">{{.Label}}</h2>
-    <div class="rows">
+  <div class="mb-12">
+    <h2 class="pb-2 text-meta font-medium text-ink-faint">{{.Label}}</h2>
+    <div class="border-t border-rule">
       {{- range .Items }}
       {{- template "article-row" . }}
       {{- end }}

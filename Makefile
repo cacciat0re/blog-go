@@ -1,4 +1,4 @@
-.PHONY: run build fmt tidy clean migrate-up migrate-down migrate-version css
+.PHONY: run build build-css fmt tidy clean migrate-up migrate-down migrate-version
 
 run:
 	go run ./cmd/server

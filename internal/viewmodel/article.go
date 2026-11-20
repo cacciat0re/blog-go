@@ -8,32 +8,22 @@ import (
 // ArticleSummaryVo: identity, title, summary, category, tags, plus the
 // preformatted dates the row prints.
 type ArticleSummaryViewModel struct {
-	ID               int64
-	Slug             string
-	Title            string
-	Summary          string
-	Href             string
-	Index            string // zero-padded list position, e.g. "01"
-	Category         *Link
-	Tags             []Link
-	DateISO          string
-	DateDisplay      string
-	IsTranslatedByAI bool
+	ID          int64
+	Slug        string
+	Title       string
+	Summary     string
+	Href        string
+	Index       string // zero-padded list position, e.g. "01"
+	Category    *Link
+	Tags        []Link
+	DateISO     string
+	DateDisplay string
 }
 
-// HomeViewModel is the landing page: the latest articles and the site counters.
+// HomeViewModel is the landing page: the latest articles.
 type HomeViewModel struct {
-	SharedViewModel
-	Articles     []ArticleSummaryViewModel
-	ArticlesHref string
-	ArchiveHref  string
-	Stats        []StatViewModel
-}
-
-// StatViewModel is one counter of the ruler under the masthead.
-type StatViewModel struct {
-	Value string
-	Label string // an i18n key, translated in the template
+	Meta
+	Articles []ArticleSummaryViewModel
 }
 
 // MonthGroupViewModel is one heading of the list page.
@@ -42,9 +32,9 @@ type MonthGroupViewModel struct {
 	Items []ArticleSummaryViewModel
 }
 
-// ArticleListViewModel is the paginated archive of published articles.
+// ArticleListViewModel is the paginated list of published articles.
 type ArticleListViewModel struct {
-	SharedViewModel
+	Meta
 	BasePath   string
 	ClearHref  string
 	Query      ListQuery
@@ -60,40 +50,24 @@ type ArticleListViewModel struct {
 
 // ArticleViewModel is one article. It mirrors the legacy ArticleVo.
 type ArticleViewModel struct {
-	SharedViewModel
-	ID               int64
-	Slug             string
-	Title            string
-	Summary          string
-	Content          template.HTML
-	Category         *Link
-	Tags             []Link
-	DateISO          string
-	DateDisplay      string
-	UpdatedISO       string
-	UpdatedDisplay   string
-	IsTranslatedByAI bool
-	BackHref         string
-}
-
-// ArchiveViewModel is the category index, nested one level.
-type ArchiveViewModel struct {
-	SharedViewModel
-	Groups []CategoryGroupViewModel
-	Empty  bool
-}
-
-// CategoryGroupViewModel is a top-level category with its children.
-type CategoryGroupViewModel struct {
-	ID       int64
-	Name     string
-	Href     string
-	Children []Link
+	Meta
+	ID             int64
+	Slug           string
+	Title          string
+	Summary        string
+	Content        template.HTML
+	Category       *Link
+	Tags           []Link
+	DateISO        string
+	DateDisplay    string
+	UpdatedISO     string
+	UpdatedDisplay string
+	BackHref       string
 }
 
 // GalleryViewModel is the picture gallery.
 type GalleryViewModel struct {
-	SharedViewModel
+	Meta
 	Pictures   []PictureViewModel
 	Total      int64
 	Pagination *Pagination
@@ -111,14 +85,14 @@ type PictureViewModel struct {
 	Tags      []Link
 }
 
-// AboutViewModel is the static about page; its copy lives in the locale files.
+// AboutViewModel is the static about page; its copy lives in the template.
 type AboutViewModel struct {
-	SharedViewModel
+	Meta
 }
 
 // ErrorViewModel is the shared error page.
 type ErrorViewModel struct {
-	SharedViewModel
+	Meta
 	Status  int
 	Title   string
 	Message string

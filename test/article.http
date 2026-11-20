@@ -1,82 +1,37 @@
-### Create Article
-POST {{baseUrl}}/api/admin/articles
+### List articles (default)
+GET {{baseUrl}}/api/articles?limit=20&offset=0
+Accept: application/json
+
+### List articles with filters
+GET {{baseUrl}}/api/articles?key=%E7%A4%BA%E4%BE%8B&category=backend&tag=go&limit=10&offset=0
+Accept: application/json
+
+### List articles next page
+GET {{baseUrl}}/api/articles?limit=5&offset=5
+Accept: application/json
+
+### Get article by id
+GET {{baseUrl}}/api/articles/1
+Accept: application/json
+
+### Get article by id that does not exist (expect 404)
+GET {{baseUrl}}/api/articles/999999
+Accept: application/json
+
+### Create article
+POST {{baseUrl}}/api/articles
 Content-Type: application/json
 Accept: application/json
 
 {
   "slug": "hello-world",
   "status": "PUBLISHED",
-  "translations": [
-    {
-      "language": "EN",
-      "title": "Hello World",
-      "summary": "An example article",
-      "markdown_content": "# Hello\n\nThis is an example.",
-      "html_content": "<h1>Hello</h1><p>This is an example.</p>",
-      "is_source": true,
-      "is_translated_by_ai": false
-    },
-    {
-      "language": "ZH",
-      "title": "你好，世界",
-      "summary": "示例文章",
-      "markdown_content": "# 你好\n\n这是一篇示例文章。",
-      "html_content": "<h1>你好</h1><p>这是一篇示例文章。</p>",
-      "is_source": false,
-      "is_translated_by_ai": true
-    }
-  ]
+  "title": "你好，世界",
+  "summary": "示例文章",
+  "markdown_content": "# 你好\n\n这是一篇示例文章。",
+  "html_content": "<h1>你好</h1><p>这是一篇示例文章。</p>"
 }
 
-### Get by ID
-GET {{baseUrl}}/api/admin/articles/1
-Accept: application/json
-
-### GET article
-GET {{baseUrl}}/ZH/articles/hello-world
-Accept: application/json
-
-### List articles (default)
-POST {{baseUrl}}/api/articles/query
-Content-Type: application/json
-Accept: application/json
-
-{
-  "language": "EN",
-  "limit": 20,
-  "offset": 0
-}
-
-### List articles with filters
-POST {{baseUrl}}/api/articles/query
-Content-Type: application/json
-Accept: application/json
-
-{
-  "language": "ZH",
-  "key": "示例",
-  "category": "backend",
-  "tag": "go",
-  "limit": 10,
-  "offset": 0
-}
-
-### List articles next page
-POST {{baseUrl}}/api/articles/query
-Content-Type: application/json
-Accept: application/json
-
-{
-  "language": "EN",
-  "limit": 5,
-  "offset": 5
-}
-
-### List articles with unsupported language (expect 400)
-POST {{baseUrl}}/api/articles/query
-Content-Type: application/json
-Accept: application/json
-
-{
-  "language": "FR"
-}
+### Public article page (MVC)
+GET {{baseUrl}}/articles/hello-world
+Accept: text/html

@@ -16,9 +16,9 @@ var ErrArticleNotFound = errors.New("article not found")
 type IArticleService interface {
 	Create(ctx context.Context, article *model.Article) error
 	GetByID(ctx context.Context, id int64) (model.Article, error)
-	GetBySlug(ctx context.Context, slug, lang string) (payload.ArticleResponse, error)
+	GetBySlug(ctx context.Context, slug string) (payload.ArticleResponse, error)
 	GetAllPublished(ctx context.Context, query payload.ArticleListRequest) (payload.PageResponse[payload.ArticleListItemResponse], error)
-	GetPublishedDetail(ctx context.Context, slug, lang string) (payload.ArticleDetailResponse, error)
+	GetPublishedDetail(ctx context.Context, slug string) (payload.ArticleDetailResponse, error)
 }
 
 type ArticleService struct {
@@ -33,9 +33,6 @@ func (s *ArticleService) Create(ctx context.Context, article *model.Article) err
 	article.Status = strings.ToUpper(strings.TrimSpace(article.Status))
 	if article.Status == "" {
 		article.Status = model.ArticleStatusDraft
-	}
-	for i := range article.Translations {
-		article.Translations[i].Language = strings.ToUpper(strings.TrimSpace(article.Translations[i].Language))
 	}
 
 	if err := s.repository.Create(ctx, article); err != nil {
@@ -55,8 +52,8 @@ func (s *ArticleService) GetByID(ctx context.Context, id int64) (model.Article, 
 	return article, nil
 }
 
-func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (payload.ArticleResponse, error) {
-	response, err := s.repository.FindBySlug(ctx, slug, lang)
+func (s *ArticleService) GetBySlug(ctx context.Context, slug string) (payload.ArticleResponse, error) {
+	response, err := s.repository.FindBySlug(ctx, slug)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return payload.ArticleResponse{}, ErrArticleNotFound
@@ -66,8 +63,8 @@ func (s *ArticleService) GetBySlug(ctx context.Context, slug, lang string) (payl
 	return response, nil
 }
 
-func (s *ArticleService) GetPublishedDetail(ctx context.Context, slug, lang string) (payload.ArticleDetailResponse, error) {
-	response, err := s.repository.FindPublishedDetail(ctx, slug, lang)
+func (s *ArticleService) GetPublishedDetail(ctx context.Context, slug string) (payload.ArticleDetailResponse, error) {
+	response, err := s.repository.FindPublishedDetail(ctx, slug)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return payload.ArticleDetailResponse{}, ErrArticleNotFound

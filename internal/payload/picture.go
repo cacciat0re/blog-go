@@ -15,12 +15,3 @@ type PictureResponse struct {
 	Tags             []TagResponse `json:"tags"`
 	CreatedAt        string        `json:"created_at"`
 }
-
-// SiteStatisticsResponse is the landing page's summary counters.
-type SiteStatisticsResponse struct {
-	TotalArticles     int64  `json:"total_articles"`
-	TotalCategories   int64  `json:"total_categories"`
-	TotalTags         int64  `json:"total_tags"`
-	TotalArticleViews int64  `json:"total_article_views"`
-	Date              string `json:"date"`
-}

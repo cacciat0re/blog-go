@@ -8,26 +8,23 @@
 */ -}}
 
 {{- define "article-row" -}}
-<article class="row">
-  <p class="row-meta">
-    <span class="row-index">{{.Index}}</span>
+<article class="grid grid-cols-1 gap-x-6 gap-y-2 border-b border-rule py-6 md:grid-cols-12 md:items-baseline">
+  <p class="flex items-baseline gap-3 font-mono text-meta text-ink-faint md:col-span-2">
+    <span class="text-ink-faint">{{.Index}}</span>
     {{- if .DateISO }}<time datetime="{{.DateISO}}">{{.DateDisplay}}</time>{{- end }}
   </p>
-  <div class="row-body">
-    <h3 class="row-title"><a href="{{.Href}}">{{.Title}}</a></h3>
-    {{- if .IsTranslatedByAI }}
-    <p class="row-note">{{t "article.aiTranslated"}}</p>
-    {{- end }}
+  <div class="md:col-span-6 md:col-start-3">
+    <h3 class="text-row tracking-[-0.015em]"><a class="hover:text-signal" href="{{.Href}}">{{.Title}}</a></h3>
     {{- if .Summary }}
-    <p class="row-summary">{{.Summary}}</p>
+    <p class="mt-1.5 max-w-[62ch] text-[0.9375rem] text-ink-muted">{{.Summary}}</p>
     {{- end }}
   </div>
-  <div class="row-facets">
+  <div class="flex flex-wrap gap-3 text-xs text-ink-faint md:col-span-3 md:col-start-10 md:justify-self-end">
     {{- if .Category }}
-    <a class="facet is-link" href="{{.Category.Href}}">{{.Category.Label}}</a>
+    <a class="border border-rule px-2 py-0.5 text-ink-faint hover:text-signal" href="{{.Category.Href}}">{{.Category.Label}}</a>
     {{- end }}
     {{- range .Tags }}
-    <a class="facet" href="{{.Href}}">#{{.Label}}</a>
+    <a class="text-ink-faint hover:text-signal" href="{{.Href}}">#{{.Label}}</a>
     {{- end }}
   </div>
 </article>
@@ -35,37 +32,25 @@
 
 {{- define "pagination" -}}
 {{- if . }}
-<nav class="pagination" aria-label="{{t "articles.title"}}">
+<nav class="mt-8 flex flex-wrap items-baseline gap-4 border-t border-rule pt-6 text-meta print:hidden" aria-label="文章">
   {{- if .First }}
-  <a class="pagination-move" href="{{.First.Href}}" rel="first">{{t "pagination.first"}}</a>
-  <a class="pagination-move" href="{{.Prev.Href}}" rel="prev">← {{t "pagination.previous"}}</a>
+  <a class="text-ink-muted hover:text-signal" href="{{.First.Href}}" rel="first">首页</a>
+  <a class="text-ink-muted hover:text-signal" href="{{.Prev.Href}}" rel="prev">← 上一页</a>
   {{- end }}
-  <span class="pagination-window">
+  <span class="mx-auto flex gap-3">
     {{- range .Pages }}
-    <a class="pagination-page{{if .Active}} is-active{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>
+    <a class="tabular-nums text-ink-muted{{if .Active}} font-bold text-signal{{end}}" href="{{.Href}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>
     {{- end }}
   </span>
   {{- if .Next }}
-  <a class="pagination-move" href="{{.Next.Href}}" rel="next">{{t "pagination.next"}} →</a>
-  <a class="pagination-move" href="{{.Last.Href}}" rel="last">{{t "pagination.last"}}</a>
+  <a class="text-ink-muted hover:text-signal" href="{{.Next.Href}}" rel="next">下一页 →</a>
+  <a class="text-ink-muted hover:text-signal" href="{{.Last.Href}}" rel="last">末页</a>
   {{- end }}
-  <span class="pagination-summary">{{t "pagination.summary" .Page .TotalPages}}</span>
+  <span class="text-ink-faint">第 {{.Page}} 页，共 {{.TotalPages}} 页</span>
 </nav>
 {{- end }}
 {{- end -}}
 
 {{- define "empty" -}}
-<p class="empty">{{t .}}</p>
-{{- end -}}
-
-{{- define "stats" -}}
-{{- /* The counter ruler under the masthead: value and label, separated by a
-       hairline, set in the monospace family like a technical scale. */ -}}
-{{- if . }}
-<div class="stats">
-  {{- range . }}
-  <p class="stat"><span class="stat-value">{{.Value}}</span><span class="stat-label">{{t .Label}}</span></p>
-  {{- end }}
-</div>
-{{- end }}
+<p class="py-12 text-[0.9375rem] text-ink-faint">{{.}}</p>
 {{- end -}}
